@@ -5,25 +5,32 @@ import {
   Building2,
   CheckSquare,
   FileText,
+  DollarSign,
   Menu,
 } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { TopNav } from "./TopNav";
 import { QuickActionModal } from "./QuickActionModal";
 import { useConstructionStore } from "../../store/useConstructionStore";
+import { isRouteAllowedForRole } from "../../lib/permissions";
 import { cn } from "../../lib/utils";
 
 export const AppLayout: React.FC = () => {
   const [isQuickActionOpen, setIsQuickActionOpen] = useState(false);
   const location = useLocation();
-  const { toggleMobileMenu } = useConstructionStore();
+  const { toggleMobileMenu, activeRole } = useConstructionStore();
 
-  const mobileNavItems = [
+  const allMobileNavItems = [
     { label: "Dashboard", path: "/", icon: LayoutDashboard },
     { label: "Projects", path: "/projects", icon: Building2 },
     { label: "Tasks", path: "/tasks", icon: CheckSquare },
     { label: "DPR", path: "/daily-reports", icon: FileText },
+    { label: "Finance", path: "/finance", icon: DollarSign },
   ];
+
+  const mobileNavItems = allMobileNavItems.filter((item) =>
+    isRouteAllowedForRole(item.path, activeRole)
+  );
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex font-sans antialiased">

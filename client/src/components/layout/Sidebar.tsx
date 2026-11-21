@@ -19,9 +19,26 @@ import {
   ShieldCheck,
   X,
   KeyRound,
+  Lock,
 } from "lucide-react";
 import { useConstructionStore } from "../../store/useConstructionStore";
+import { getAllowedNavSections } from "../../lib/permissions";
 import { cn } from "../../lib/utils";
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  LayoutDashboard,
+  Building2,
+  CheckSquare,
+  FileText,
+  Users,
+  CalendarCheck,
+  CreditCard,
+  Boxes,
+  Truck,
+  DollarSign,
+  ClipboardCheck,
+  Sparkles,
+};
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -33,65 +50,30 @@ export const Sidebar: React.FC = () => {
     approvals,
     materials,
     currentUser,
+    activeRole,
   } = useConstructionStore();
 
   const pendingApprovalsCount = approvals.filter((a) => a.status === "PENDING").length;
   const lowStockCount = materials.filter((m) => m.status === "Low Stock").length;
 
-  const navSections = [
-    {
-      title: "Main Operations",
-      items: [
-        { label: "Dashboard", path: "/", icon: LayoutDashboard },
-        { label: "Projects & Sites", path: "/projects", icon: Building2 },
-        { label: "Tasks & Milestones", path: "/tasks", icon: CheckSquare },
-        { label: "Daily Site Reports", path: "/daily-reports", icon: FileText },
-      ],
-    },
-    {
-      title: "Workforce",
-      items: [
-        { label: "Workers Directory", path: "/workforce", icon: Users },
-        { label: "Daily Attendance", path: "/attendance", icon: CalendarCheck },
-        { label: "Leaves & Wages", path: "/leaves-wages", icon: CreditCard },
-      ],
-    },
-    {
-      title: "Field Operations",
-      items: [
-        {
-          label: "Materials & Inventory",
-          path: "/materials",
-          icon: Boxes,
-          badge: lowStockCount > 0 ? `${lowStockCount} Low` : undefined,
-          badgeColor: "bg-amber-400/20 text-amber-300 border border-amber-400/30",
-        },
-        { label: "Heavy Equipment", path: "/equipment", icon: Truck },
-      ],
-    },
-    {
-      title: "Commercial & Finance",
-      items: [
-        { label: "Finance & Budgets", path: "/finance", icon: DollarSign },
-      ],
-    },
-    {
-      title: "Governance",
-      items: [
-        {
-          label: "Pending Approvals",
-          path: "/approvals",
-          icon: ClipboardCheck,
-          badge: pendingApprovalsCount > 0 ? `${pendingApprovalsCount}` : undefined,
-          badgeColor: "bg-rose-500/20 text-rose-300 border border-rose-500/30",
-        },
-        { label: "Company Onboarding", path: "/onboarding", icon: Sparkles },
-      ],
-    },
-  ];
+  // Role-Based Navigation: Only load sections and items authorized for this specific active role
+  const navSections = getAllowedNavSections(activeRole);
 
   const renderNavLinks = (isMobile: boolean = false) => (
     <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto no-scrollbar">
+      {/* Role Access Scope Badge */}
+      {(!isSidebarCollapsed || isMobile) && (
+        <div className="px-2 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] flex items-center justify-between">
+          <span className="text-slate-400 font-medium flex items-center gap-1.5">
+            <Lock className="h-3 w-3 text-amber-400" />
+            <span>Scope:</span>
+          </span>
+          <span className="font-extrabold text-amber-400 uppercase text-[10px] tracking-wider">
+            {currentUser?.roleLabel || activeRole}
+          </span>
+        </div>
+      )}
+
       {navSections.map((section, idx) => (
         <div key={idx} className="space-y-1">
           {(!isSidebarCollapsed || isMobile) && (
@@ -101,11 +83,23 @@ export const Sidebar: React.FC = () => {
           )}
           <nav className="space-y-0.5">
             {section.items.map((item) => {
-              const Icon = item.icon;
+              const Icon = ICON_MAP[item.iconName] || LayoutDashboard;
               const isActive =
                 item.path === "/"
                   ? location.pathname === "/"
                   : location.pathname.startsWith(item.path);
+
+              const badge =
+                item.badgeKey === "approvals" && pendingApprovalsCount > 0
+                  ? `${pendingApprovalsCount}`
+                  : item.badgeKey === "materials" && lowStockCount > 0
+                  ? `${lowStockCount} Low`
+                  : undefined;
+
+              const badgeColor =
+                item.badgeKey === "approvals"
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                  : "bg-amber-400/20 text-amber-300 border border-amber-400/30";
 
               return (
                 <Link
@@ -132,14 +126,14 @@ export const Sidebar: React.FC = () => {
                     )}
                   </div>
 
-                  {(!isSidebarCollapsed || isMobile) && item.badge && (
+                  {(!isSidebarCollapsed || isMobile) && badge && (
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm",
-                        item.badgeColor || "bg-slate-800 text-slate-300"
+                        badgeColor
                       )}
                     >
-                      {item.badge}
+                      {badge}
                     </span>
                   )}
                 </Link>

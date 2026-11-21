@@ -104,14 +104,14 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
           </span>
         </div>
 
-        {/* Global Search - Hidden on tiny screens, clean on tablet/desktop */}
-        <div className="relative hidden md:block w-52 lg:w-72 xl:w-80 group shrink-0">
+        {/* Global Search - Clean responsive sizing */}
+        <div className="relative hidden lg:block w-44 xl:w-60 group shrink-0">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search projects, tasks..."
+            placeholder="Search projects..."
             className="w-full rounded-xl border border-slate-200/90 bg-slate-50/80 pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all shadow-xs"
           />
           <kbd className="absolute right-2.5 top-2.5 rounded bg-slate-200/60 px-1.5 py-0.5 text-[9px] font-mono text-slate-500">
@@ -119,14 +119,14 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
           </kbd>
         </div>
 
-        {/* Site Selector with location pin (Desktop) */}
-        <div className="hidden xl:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
+        {/* Site Selector with location pin (Desktop wide screens) */}
+        <div className="hidden 2xl:flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/80 px-2.5 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors shrink-0">
           <Building className="h-3.5 w-3.5 text-blue-600 shrink-0" />
           <span className="font-semibold text-slate-500">Site:</span>
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer max-w-[180px] truncate"
+            className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer max-w-[140px] truncate"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -137,29 +137,16 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
         </div>
       </div>
 
-      {/* Right: Date, Weather, Font Switcher, Role Switcher, Quick Action, User */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Date & Weather Pill (Wide screens only) */}
-        <div className="hidden 2xl:flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-xs">
-          <div className="flex items-center gap-1.5 font-medium">
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-            <span>{currentDateFormatted}</span>
-          </div>
-          <span className="text-slate-300">|</span>
-          <div className="flex items-center gap-1.5 font-semibold text-amber-600">
-            <CloudSun className="h-4 w-4 text-amber-500" />
-            <span>Sunny 29°C</span>
-          </div>
-        </div>
-
+      {/* Right: Font Switcher, Role Switcher, Quick Action, User */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
         {/* Font Style Customizer (Hidden on small mobile) */}
-        <div className="hidden sm:flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
+        <div className="hidden md:flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors shrink-0">
           <Type className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-          <span className="font-semibold text-slate-500 hidden md:inline">Font:</span>
+          <span className="font-semibold text-slate-500 hidden xl:inline">Font:</span>
           <select
             value={fontTheme}
             onChange={(e) => setFontTheme(e.target.value as FontTheme)}
-            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs max-w-[110px] md:max-w-none"
+            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs"
           >
             <option value="outfit">Outfit (Modern)</option>
             <option value="inter">Inter (Linear)</option>
