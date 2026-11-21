@@ -1,64 +1,55 @@
-import React, { useState } from "react";
-import { Navbar } from "./components/Navbar";
-import { Sidebar, NavTab } from "./components/Sidebar";
-import { Dashboard } from "./components/Dashboard";
-import { DailyReportsView } from "./components/DailyReportsView";
-import { DocumentsView } from "./components/DocumentsView";
-import { MaterialsView } from "./components/MaterialsView";
-import { TasksView } from "./components/TasksView";
-import { StackArchitectureView } from "./components/StackArchitectureView";
-import { useProjectStore } from "./store/useProjectStore";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import { AppLayout } from "./components/layout/AppLayout";
+import { RoleDashboardSwitcher } from "./components/dashboard/RoleDashboardSwitcher";
+import { ProjectsPage } from "./pages/ProjectsPage";
+import { ProjectDetailPage } from "./pages/ProjectDetailPage";
+import { TasksPage } from "./pages/TasksPage";
+import { DailyReportsPage } from "./pages/DailyReportsPage";
+import { WorkersPage } from "./pages/WorkersPage";
+import { AttendancePage } from "./pages/AttendancePage";
+import { LeaveWagePage } from "./pages/LeaveWagePage";
+import { MaterialsPage } from "./pages/MaterialsPage";
+import { EquipmentPage } from "./pages/EquipmentPage";
+import { FinancePage } from "./pages/FinancePage";
+import { ApprovalsPage } from "./pages/ApprovalsPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
+import { AuthPage } from "./pages/AuthPage";
+
+const queryClient = new QueryClient();
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<NavTab>("dashboard");
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-
-  const { activeProjectId, projects } = useProjectStore();
-  const currentProject = projects.find((p) => p.id === activeProjectId) || projects[0];
-
-  const handleExportExcel = async () => {
-    setActiveTab("materials");
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      <Navbar />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Auth Routes */}
+          <Route path="/auth/login" element={<AuthPage />} />
 
-      <div className="flex flex-1">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
-          {activeTab === "dashboard" && (
-            <Dashboard
-              onOpenReportModal={() => setIsReportModalOpen(true)}
-              onOpenUploadModal={() => setIsUploadModalOpen(true)}
-              onExportExcel={handleExportExcel}
-            />
-          )}
-
-          {activeTab === "reports" && (
-            <DailyReportsView
-              isModalOpen={isReportModalOpen}
-              setIsModalOpen={setIsReportModalOpen}
-            />
-          )}
-
-          {activeTab === "documents" && (
-            <DocumentsView
-              isUploadModalOpen={isUploadModalOpen}
-              setIsUploadModalOpen={setIsUploadModalOpen}
-            />
-          )}
-
-          {activeTab === "materials" && <MaterialsView />}
-
-          {activeTab === "tasks" && <TasksView />}
-
-          {activeTab === "stack" && <StackArchitectureView />}
-        </main>
-      </div>
-    </div>
+          {/* Protected Application Layout */}
+          <Route path="/" element={<AppLayout />}>
+            <Route index element={<RoleDashboardSwitcher />} />
+            <Route path="projects" element={<ProjectsPage />} />
+            <Route path="projects/:id" element={<ProjectDetailPage />} />
+            <Route path="tasks" element={<TasksPage />} />
+            <Route path="daily-reports" element={<DailyReportsPage />} />
+            <Route path="workforce" element={<WorkersPage />} />
+            <Route path="attendance" element={<AttendancePage />} />
+            <Route path="leaves-wages" element={<LeaveWagePage />} />
+            <Route path="materials" element={<MaterialsPage />} />
+            <Route path="equipment" element={<EquipmentPage />} />
+            <Route path="finance" element={<FinancePage />} />
+            <Route path="approvals" element={<ApprovalsPage />} />
+            <Route path="onboarding" element={<OnboardingPage />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+        <Toaster richColors position="top-right" />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
