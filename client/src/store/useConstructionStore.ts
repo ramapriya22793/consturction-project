@@ -29,12 +29,15 @@ import {
   initialApprovals,
 } from "../mockData/constructionData";
 
+export type FontTheme = "outfit" | "inter" | "jakarta" | "manrope" | "space" | "dmsans";
+
 interface ConstructionState {
-  // Navigation & Role
+  // Navigation & Role & Styling
   activeRole: UserRole;
   selectedProjectId: string;
   isSidebarCollapsed: boolean;
   searchQuery: string;
+  fontTheme: FontTheme;
   
   // Data Collections
   projects: Project[];
@@ -55,6 +58,7 @@ interface ConstructionState {
   setSelectedProjectId: (id: string) => void;
   toggleSidebar: () => void;
   setSearchQuery: (query: string) => void;
+  setFontTheme: (theme: FontTheme) => void;
 
   // Project Mutations
   addProject: (project: Project) => void;
@@ -88,6 +92,7 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
   selectedProjectId: "prj-metro-01",
   isSidebarCollapsed: false,
   searchQuery: "",
+  fontTheme: "outfit",
 
   projects: initialProjects,
   tasks: initialTasks,
@@ -106,6 +111,20 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
   toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
   setSearchQuery: (query) => set({ searchQuery: query }),
+  setFontTheme: (fontTheme) => {
+    if (typeof document !== "undefined") {
+      document.body.classList.remove(
+        "font-theme-outfit",
+        "font-theme-inter",
+        "font-theme-jakarta",
+        "font-theme-manrope",
+        "font-theme-space",
+        "font-theme-dmsans"
+      );
+      document.body.classList.add(`font-theme-${fontTheme}`);
+    }
+    set({ fontTheme });
+  },
 
   addProject: (project) =>
     set((state) => ({ projects: [project, ...state.projects] })),

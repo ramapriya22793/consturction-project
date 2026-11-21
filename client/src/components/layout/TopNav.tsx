@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Bell,
@@ -11,8 +11,9 @@ import {
   CheckCircle,
   ChevronDown,
   Sparkles,
+  Type,
 } from "lucide-react";
-import { useConstructionStore } from "../../store/useConstructionStore";
+import { useConstructionStore, FontTheme } from "../../store/useConstructionStore";
 import { UserRole } from "../../types";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -31,7 +32,22 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
     searchQuery,
     setSearchQuery,
     approvals,
+    fontTheme,
+    setFontTheme,
   } = useConstructionStore();
+
+  useEffect(() => {
+    // Ensure initial font class is active on body
+    document.body.classList.remove(
+      "font-theme-outfit",
+      "font-theme-inter",
+      "font-theme-jakarta",
+      "font-theme-manrope",
+      "font-theme-space",
+      "font-theme-dmsans"
+    );
+    document.body.classList.add(`font-theme-${fontTheme}`);
+  }, [fontTheme]);
 
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -58,7 +74,7 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
     <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 backdrop-blur-md shadow-xs">
       {/* Left: Global Search & Active Site Switcher */}
       <div className="flex items-center gap-3.5 flex-1 max-w-xl">
-        <div className="relative w-full max-w-xs group">
+        <div className="relative w-64 sm:w-72 lg:w-80 group">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
           <input
             type="text"
@@ -103,6 +119,24 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
             <CloudSun className="h-4 w-4 text-amber-500" />
             <span>Sunny 29°C</span>
           </div>
+        </div>
+
+        {/* Font Style Customizer */}
+        <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2.5 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
+          <Type className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+          <span className="font-semibold text-slate-500 hidden sm:inline">Font:</span>
+          <select
+            value={fontTheme}
+            onChange={(e) => setFontTheme(e.target.value as FontTheme)}
+            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs"
+          >
+            <option value="outfit">Outfit (Modern SaaS)</option>
+            <option value="inter">Inter (Linear / Vercel)</option>
+            <option value="jakarta">Plus Jakarta Sans</option>
+            <option value="manrope">Manrope (Civil Architecture)</option>
+            <option value="space">Space Grotesk (Engineering)</option>
+            <option value="dmsans">DM Sans (Clean Corporate)</option>
+          </select>
         </div>
 
         {/* Role-Based Access Control Switcher */}
