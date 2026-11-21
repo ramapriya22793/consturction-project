@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Bell,
@@ -14,6 +15,8 @@ import {
   Type,
   Menu,
   HardHat,
+  LogOut,
+  KeyRound,
 } from "lucide-react";
 import { useConstructionStore, FontTheme } from "../../store/useConstructionStore";
 import { UserRole } from "../../types";
@@ -25,6 +28,7 @@ interface TopNavProps {
 }
 
 export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
+  const navigate = useNavigate();
   const {
     activeRole,
     setActiveRole,
@@ -37,7 +41,11 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
     fontTheme,
     setFontTheme,
     toggleMobileMenu,
+    currentUser,
+    logout,
   } = useConstructionStore();
+
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     // Ensure initial font class is active on body
@@ -227,20 +235,79 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
           )}
         </div>
 
-        {/* User Profile Avatar with Online indicator */}
-        <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
-          <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80"
-              alt="Sarah Chen"
-              className="h-8 w-8 rounded-full border border-slate-300 object-cover shadow-xs"
-            />
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
-          </div>
-          <div className="hidden md:block leading-tight text-left">
-            <p className="text-xs font-bold text-slate-900">Sarah Chen, PMP</p>
-            <p className="text-[10px] text-slate-400 font-medium">Apex Construction Ltd</p>
-          </div>
+        {/* User Profile Avatar with Interactive Dropdown */}
+        <div className="relative pl-1 sm:pl-2 border-l border-slate-200">
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2 rounded-xl p-1 hover:bg-slate-100 transition-colors"
+          >
+            <div className="relative">
+              <img
+                src={currentUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"}
+                alt={currentUser?.name || "User"}
+                className="h-8 w-8 rounded-full border border-slate-300 object-cover shadow-xs"
+              />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            </div>
+            <div className="hidden lg:block leading-tight text-left max-w-[130px] truncate">
+              <p className="text-xs font-bold text-slate-900 truncate">{currentUser?.name || "User"}</p>
+              <p className="text-[10px] text-slate-400 font-medium truncate">{currentUser?.roleLabel || "Role"}</p>
+            </div>
+            <ChevronDown className="h-3.5 w-3.5 text-slate-400 hidden sm:block" />
+          </button>
+
+          {/* User Account Popover */}
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-xs">
+              <div className="flex items-start gap-3 pb-3 border-b border-slate-100">
+                <img
+                  src={currentUser?.avatar}
+                  alt={currentUser?.name}
+                  className="h-10 w-10 rounded-xl object-cover ring-2 ring-slate-100 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-slate-900 truncate">{currentUser?.name}</p>
+                  <p className="text-[11px] text-slate-500 truncate">{currentUser?.email}</p>
+                  <span className="inline-block mt-1 rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-extrabold text-blue-700 border border-blue-200">
+                    {currentUser?.roleLabel}
+                  </span>
+                </div>
+              </div>
+
+              <div className="py-2 space-y-1">
+                <Link
+                  to="/login"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors font-medium"
+                >
+                  <KeyRound className="h-4 w-4 text-amber-500" />
+                  <span>Switch Role / Account</span>
+                </Link>
+                <Link
+                  to="/onboarding"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors font-medium"
+                >
+                  <Sparkles className="h-4 w-4 text-blue-500" />
+                  <span>Company Onboarding</span>
+                </Link>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  onClick={() => {
+                    logout();
+                    setShowUserMenu(false);
+                    navigate("/login");
+                  }}
+                  className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 text-rose-600 hover:bg-rose-50 transition-colors font-bold"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

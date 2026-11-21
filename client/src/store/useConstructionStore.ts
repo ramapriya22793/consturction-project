@@ -28,10 +28,15 @@ import {
   initialInvoices,
   initialApprovals,
 } from "../mockData/constructionData";
+import { DEMO_ACCOUNTS, DemoAccount } from "../mockData/demoAccounts";
 
 export type FontTheme = "outfit" | "inter" | "jakarta" | "manrope" | "space" | "dmsans";
 
 interface ConstructionState {
+  // Authentication & Session
+  currentUser: DemoAccount;
+  isAuthenticated: boolean;
+
   // Navigation & Role & Styling
   activeRole: UserRole;
   selectedProjectId: string;
@@ -63,6 +68,11 @@ interface ConstructionState {
   setSearchQuery: (query: string) => void;
   setFontTheme: (theme: FontTheme) => void;
 
+  // Authentication Actions
+  loginWithCredentials: (email: string, password: string) => { success: boolean; error?: string };
+  loginAsDemoRole: (role: UserRole) => void;
+  logout: () => void;
+
   // Project Mutations
   addProject: (project: Project) => void;
   updateProjectProgress: (id: string, progress: number) => void;
@@ -90,7 +100,10 @@ interface ConstructionState {
   resolveApproval: (id: string, approved: boolean) => void;
 }
 
-export const useConstructionStore = create<ConstructionState>((set) => ({
+export const useConstructionStore = create<ConstructionState>((set, get) => ({
+  currentUser: DEMO_ACCOUNTS[0], // Default Builder/Owner
+  isAuthenticated: true,
+
   activeRole: "BUILDER_OWNER",
   selectedProjectId: "prj-metro-01",
   isSidebarCollapsed: false,
@@ -111,7 +124,10 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
   invoices: initialInvoices,
   approvals: initialApprovals,
 
-  setActiveRole: (role) => set({ activeRole: role }),
+  setActiveRole: (role) => {
+    const matchedAccount = DEMO_ACCOUNTS.find((a) => a.role === role) || DEMO_ACCOUNTS[0];
+    set({ activeRole: role, currentUser: matchedAccount });
+  },
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
   toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
   toggleMobileMenu: () => set((state) => ({ isMobileMenuOpen: !state.isMobileMenuOpen })),
@@ -130,6 +146,39 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
       document.body.classList.add(`font-theme-${fontTheme}`);
     }
     set({ fontTheme });
+  },
+
+  loginWithCredentials: (email, password) => {
+    const found = DEMO_ACCOUNTS.find(
+      (a) => a.email.toLowerCase() === email.trim().toLowerCase()
+    );
+    if (!found) {
+      return { success: false, error: "No account found matching this corporate email address." };
+    }
+    if (password && password !== found.password) {
+      return { success: false, error: "Invalid password for this account. Check demo credentials below." };
+    }
+    set({
+      currentUser: found,
+      activeRole: found.role,
+      isAuthenticated: true,
+    });
+    return { success: true };
+  },
+
+  loginAsDemoRole: (role) => {
+    const account = DEMO_ACCOUNTS.find((a) => a.role === role) || DEMO_ACCOUNTS[0];
+    set({
+      currentUser: account,
+      activeRole: account.role,
+      isAuthenticated: true,
+    });
+  },
+
+  logout: () => {
+    set({
+      isAuthenticated: false,
+    });
   },
 
   addProject: (project) =>

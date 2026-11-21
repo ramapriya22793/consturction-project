@@ -26,6 +26,7 @@ export function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Auth Routes */}
+          <Route path="/login" element={<AuthPage />} />
           <Route path="/auth/login" element={<AuthPage />} />
 
           {/* Protected Application Layout */}
