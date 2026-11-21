@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  SITE_ENGINEER
+  CONTRACTOR
+  CLIENT
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum DocumentCategory {
+  CAD_DRAWING
+  CONTRACT
+  INVOICE
+  SPECIFICATION
+  INSPECTION_REPORT
+  SITE_PHOTO
+  SAFETY_COMPLIANCE
+  OTHER
+}
+
+model User {
+  id           String              @id @default(uuid())
+  supabaseId   String?             @unique
+  email        String              @unique
+  name         String
+  role         Role                @default(SITE_ENGINEER)
+  phone        String?
+  avatarUrl    String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  tasks        Task[]              @relation("AssignedTasks")
+  reports      DailyReport[]
+  documents    Document[]
+  inspections  QualityInspection[]
+}
+
+model Project {
+  id           String              @id @default(uuid())
+  code         String              @unique
+  name         String
+  description  String?
+  location     String
+  budget       Decimal             @db.Decimal(12, 2)
+  spent        Decimal             @default(0.00) @db.Decimal(12, 2)
+  status       ProjectStatus       @default(PLANNING)
+  startDate    DateTime
+  endDate      DateTime?
+  clientName   String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  tasks        Task[]
+  dailyReports DailyReport[]
+  documents    Document[]
+  materials    Material[]
+  inspections  QualityInspection[]
+}
+
+model Task {
+  id           String        @id @default(uuid())
+  projectId    String
+  title        String
+  description  String?
+  status       TaskStatus    @default(TODO)
+  priority     TaskPriority  @default(MEDIUM)
+  dueDate      DateTime?
+  assignedToId String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedTo   User?         @relation("AssignedTasks", fields: [assignedToId], references: [id])
+}
+
+model DailyReport {
+  id              String    @id @default(uuid())
+  projectId       String
+  authorId        String
+  reportDate      DateTime  @default(now())
+  weather         String?
+  workforceCount  Int       @default(0)
+  equipmentOnSite String?
+  workSummary     String
+  issuesDelays    String?
+  createdAt       DateTime  @default(now())
+
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author          User      @relation(fields: [authorId], references: [id])
+}
+
+model Document {
+  id           String           @id @default(uuid())
+  projectId    String
+  title        String
+  category     DocumentCategory @default(OTHER)
+  fileType     String
+  r2Key        String
+  r2Url        String?
+  fileSize     Int
+  version      Int              @default(1)
+  uploadedById String
+  createdAt    DateTime         @default(now())
+
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy   User             @relation(fields: [uploadedById], references: [id])
+}
+
+model Material {
+  id           String    @id @default(uuid())
+  projectId    String
+  name         String
+  category     String?
+  quantity     Decimal   @db.Decimal(10, 2)
+  unit         String
+  unitPrice    Decimal   @db.Decimal(10, 2)
+  totalCost    Decimal   @db.Decimal(12, 2)
+  supplier     String?
+  status       String    @default("ORDERED")
+  receivedDate DateTime?
+  createdAt    DateTime  @default(now())
+
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model QualityInspection {
+  id             String    @id @default(uuid())
+  projectId      String
+  inspectorId    String
+  title          String
+  findings       String?
+  status         String    @default("PENDING")
+  inspectionDate DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  inspector      User      @relation(fields: [inspectorId], references: [id])
+}
