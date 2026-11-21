@@ -36,6 +36,7 @@ interface ConstructionState {
   activeRole: UserRole;
   selectedProjectId: string;
   isSidebarCollapsed: boolean;
+  isMobileMenuOpen: boolean;
   searchQuery: string;
   fontTheme: FontTheme;
   
@@ -57,6 +58,8 @@ interface ConstructionState {
   setActiveRole: (role: UserRole) => void;
   setSelectedProjectId: (id: string) => void;
   toggleSidebar: () => void;
+  toggleMobileMenu: () => void;
+  setMobileMenuOpen: (open: boolean) => void;
   setSearchQuery: (query: string) => void;
   setFontTheme: (theme: FontTheme) => void;
 
@@ -91,6 +94,7 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
   activeRole: "BUILDER_OWNER",
   selectedProjectId: "prj-metro-01",
   isSidebarCollapsed: false,
+  isMobileMenuOpen: false,
   searchQuery: "",
   fontTheme: "outfit",
 
@@ -110,6 +114,8 @@ export const useConstructionStore = create<ConstructionState>((set) => ({
   setActiveRole: (role) => set({ activeRole: role }),
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
   toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
+  toggleMobileMenu: () => set((state) => ({ isMobileMenuOpen: !state.isMobileMenuOpen })),
+  setMobileMenuOpen: (open) => set({ isMobileMenuOpen: open }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setFontTheme: (fontTheme) => {
     if (typeof document !== "undefined") {

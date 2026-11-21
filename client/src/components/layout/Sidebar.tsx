@@ -17,13 +17,21 @@ import {
   HardHat,
   Sparkles,
   ShieldCheck,
+  X,
 } from "lucide-react";
 import { useConstructionStore } from "../../store/useConstructionStore";
 import { cn } from "../../lib/utils";
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { isSidebarCollapsed, toggleSidebar, approvals, materials } = useConstructionStore();
+  const {
+    isSidebarCollapsed,
+    toggleSidebar,
+    isMobileMenuOpen,
+    setMobileMenuOpen,
+    approvals,
+    materials,
+  } = useConstructionStore();
 
   const pendingApprovalsCount = approvals.filter((a) => a.status === "PENDING").length;
   const lowStockCount = materials.filter((m) => m.status === "Low Stock").length;
@@ -80,122 +88,185 @@ export const Sidebar: React.FC = () => {
     },
   ];
 
-  return (
-    <aside
-      className={cn(
-        "relative flex flex-col justify-between border-r border-slate-800/80 bg-[#0B1120] text-slate-300 transition-all duration-300 shrink-0 select-none z-30 shadow-xl",
-        isSidebarCollapsed ? "w-20" : "w-64"
-      )}
-    >
-      <div className="flex flex-col h-full overflow-hidden">
-        {/* Brand Header */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800/80 bg-[#0B1120]/90 backdrop-blur shrink-0">
-          <Link to="/" className="flex items-center gap-3 overflow-hidden group">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 font-black shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <HardHat className="h-5 w-5" />
-            </div>
-            {!isSidebarCollapsed && (
-              <div className="leading-tight">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-black tracking-tight text-white text-base">
-                    CIVIL<span className="text-amber-400">PULSE</span>
-                  </span>
-                  <span className="rounded-md bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-400 uppercase tracking-wider border border-amber-400/20">
-                    ERP
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 font-medium">Enterprise Platform</p>
-              </div>
-            )}
-          </Link>
-        </div>
+  const renderNavLinks = (isMobile: boolean = false) => (
+    <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto no-scrollbar">
+      {navSections.map((section, idx) => (
+        <div key={idx} className="space-y-1">
+          {(!isSidebarCollapsed || isMobile) && (
+            <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">
+              {section.title}
+            </p>
+          )}
+          <nav className="space-y-0.5">
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.path === "/"
+                  ? location.pathname === "/"
+                  : location.pathname.startsWith(item.path);
 
-        {/* Scrollable Navigation - Smooth scrollbar */}
-        <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto no-scrollbar">
-          {navSections.map((section, idx) => (
-            <div key={idx} className="space-y-1">
-              {!isSidebarCollapsed && (
-                <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">
-                  {section.title}
-                </p>
-              )}
-              <nav className="space-y-0.5">
-                {section.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive =
-                    item.path === "/"
-                      ? location.pathname === "/"
-                      : location.pathname.startsWith(item.path);
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      title={isSidebarCollapsed ? item.label : undefined}
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => isMobile && setMobileMenuOpen(false)}
+                  title={!isMobile && isSidebarCollapsed ? item.label : undefined}
+                  className={cn(
+                    "group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150",
+                    isActive
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 font-bold"
+                      : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon
                       className={cn(
-                        "group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150",
-                        isActive
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 font-bold"
-                          : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
+                        "h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110",
+                        isActive ? "text-white" : "text-slate-400 group-hover:text-amber-400"
+                      )}
+                    />
+                    {(!isSidebarCollapsed || isMobile) && (
+                      <span className="truncate">{item.label}</span>
+                    )}
+                  </div>
+
+                  {(!isSidebarCollapsed || isMobile) && item.badge && (
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm",
+                        item.badgeColor || "bg-slate-800 text-slate-300"
                       )}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Icon
-                          className={cn(
-                            "h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110",
-                            isActive ? "text-white" : "text-slate-400 group-hover:text-amber-400"
-                          )}
-                        />
-                        {!isSidebarCollapsed && (
-                          <span className="truncate">{item.label}</span>
-                        )}
-                      </div>
-
-                      {!isSidebarCollapsed && item.badge && (
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm",
-                            item.badgeColor || "bg-slate-800 text-slate-300"
-                          )}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          ))}
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
+      ))}
+    </div>
+  );
 
-        {/* Footer Organization & Toggle */}
-        <div className="border-t border-slate-800/80 p-3 bg-slate-950/80 shrink-0 space-y-2">
-          {!isSidebarCollapsed && (
-            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800/70 text-xs">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-              <div className="truncate leading-tight">
-                <p className="text-[11px] font-bold text-slate-200 truncate">Metro Hub Project Live</p>
-                <p className="text-[10px] text-slate-400">Sync: 100% OK</p>
+  return (
+    <>
+      {/* DESKTOP SIDEBAR - Hidden on mobile (<1024px) */}
+      <aside
+        className={cn(
+          "hidden lg:flex flex-col justify-between border-r border-slate-800/80 bg-[#0B1120] text-slate-300 transition-all duration-300 shrink-0 select-none z-30 shadow-xl min-h-screen sticky top-0",
+          isSidebarCollapsed ? "w-20" : "w-64"
+        )}
+      >
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Brand Header */}
+          <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800/80 bg-[#0B1120]/90 backdrop-blur shrink-0">
+            <Link to="/" className="flex items-center gap-3 overflow-hidden group">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 font-black shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                <HardHat className="h-5 w-5" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="leading-tight">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black tracking-tight text-white text-base">
+                      CIVIL<span className="text-amber-400">PULSE</span>
+                    </span>
+                    <span className="rounded-md bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-400 uppercase tracking-wider border border-amber-400/20">
+                      ERP
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium">Enterprise Platform</p>
+                </div>
+              )}
+            </Link>
+          </div>
+
+          {/* Nav Links */}
+          {renderNavLinks(false)}
+
+          {/* Footer Organization & Toggle */}
+          <div className="border-t border-slate-800/80 p-3 bg-slate-950/80 shrink-0 space-y-2">
+            {!isSidebarCollapsed && (
+              <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800/70 text-xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                <div className="truncate leading-tight">
+                  <p className="text-[11px] font-bold text-slate-200 truncate">Metro Hub Project Live</p>
+                  <p className="text-[10px] text-slate-400">Sync: 100% OK</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={toggleSidebar}
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-2 text-xs font-bold text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
+            >
+              {isSidebarCollapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <>
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Collapse Navigation</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* MOBILE SLIDE-OUT DRAWER - Visible only on mobile when opened */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Drawer Menu Panel */}
+          <aside className="relative flex flex-col justify-between w-72 max-w-[85vw] bg-[#0B1120] text-slate-300 shadow-2xl z-10 h-full animate-in slide-in-from-left duration-250 border-r border-slate-800">
+            <div className="flex flex-col h-full overflow-hidden">
+              {/* Brand Header & Close Button */}
+              <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800/80 bg-[#0B1120] shrink-0">
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 font-black shadow-md shadow-amber-500/20">
+                    <HardHat className="h-4 w-4" />
+                  </div>
+                  <div className="leading-tight">
+                    <span className="font-black tracking-tight text-white text-base">
+                      CIVIL<span className="text-amber-400">PULSE</span>
+                    </span>
+                    <span className="ml-1.5 rounded-md bg-amber-400/10 px-1 py-0.5 text-[8px] font-extrabold text-amber-400 uppercase tracking-wider border border-amber-400/20">
+                      ERP
+                    </span>
+                  </div>
+                </Link>
+
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Navigation links */}
+              {renderNavLinks(true)}
+
+              {/* Drawer Footer */}
+              <div className="border-t border-slate-800/80 p-4 bg-slate-950/90 shrink-0">
+                <div className="flex items-center gap-2.5 text-xs text-slate-400">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <p className="text-[11px] font-medium">CivilPulse v2.4 Enterprise Connected</p>
+                </div>
               </div>
             </div>
-          )}
-
-          <button
-            onClick={toggleSidebar}
-            className="flex w-full items-center justify-center gap-2 rounded-xl py-2 text-xs font-bold text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
-          >
-            {isSidebarCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4" />
-                <span>Collapse Navigation</span>
-              </>
-            )}
-          </button>
+          </aside>
         </div>
-      </div>
-    </aside>
+      )}
+    </>
   );
 };

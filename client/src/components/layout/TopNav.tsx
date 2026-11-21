@@ -12,6 +12,8 @@ import {
   ChevronDown,
   Sparkles,
   Type,
+  Menu,
+  HardHat,
 } from "lucide-react";
 import { useConstructionStore, FontTheme } from "../../store/useConstructionStore";
 import { UserRole } from "../../types";
@@ -34,6 +36,7 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
     approvals,
     fontTheme,
     setFontTheme,
+    toggleMobileMenu,
   } = useConstructionStore();
 
   useEffect(() => {
@@ -71,31 +74,51 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
   });
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 backdrop-blur-md shadow-xs">
-      {/* Left: Global Search & Active Site Switcher */}
-      <div className="flex items-center gap-3.5 flex-1 max-w-xl">
-        <div className="relative w-64 sm:w-72 lg:w-80 group">
+    <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-3 sm:px-6 backdrop-blur-md shadow-xs">
+      {/* Left: Mobile Drawer Trigger, Brand (mobile), Global Search & Site Switcher */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+        {/* Mobile Hamburger Drawer Trigger */}
+        <button
+          onClick={toggleMobileMenu}
+          className="lg:hidden p-1.5 -ml-1 text-slate-700 hover:text-slate-950 hover:bg-slate-100 rounded-xl transition-colors shrink-0"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Brand Icon & Name on Mobile */}
+        <div className="flex lg:hidden items-center gap-2 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 font-black shadow-xs">
+            <HardHat className="h-4 w-4" />
+          </div>
+          <span className="font-black text-sm tracking-tight text-slate-900 hidden xs:inline">
+            CIVIL<span className="text-amber-500">PULSE</span>
+          </span>
+        </div>
+
+        {/* Global Search - Hidden on tiny screens, clean on tablet/desktop */}
+        <div className="relative hidden md:block w-52 lg:w-72 xl:w-80 group shrink-0">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search projects, tasks, workers..."
-            className="w-full rounded-xl border border-slate-200/90 bg-slate-50/80 pl-9 pr-9 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all shadow-xs"
+            placeholder="Search projects, tasks..."
+            className="w-full rounded-xl border border-slate-200/90 bg-slate-50/80 pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all shadow-xs"
           />
           <kbd className="absolute right-2.5 top-2.5 rounded bg-slate-200/60 px-1.5 py-0.5 text-[9px] font-mono text-slate-500">
             /
           </kbd>
         </div>
 
-        {/* Site Selector with location pin */}
-        <div className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
+        {/* Site Selector with location pin (Desktop) */}
+        <div className="hidden xl:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
           <Building className="h-3.5 w-3.5 text-blue-600 shrink-0" />
           <span className="font-semibold text-slate-500">Site:</span>
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer max-w-[200px] truncate"
+            className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer max-w-[180px] truncate"
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -106,10 +129,10 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
         </div>
       </div>
 
-      {/* Right: Date, Weather, Role Switcher, Quick Action, User */}
-      <div className="flex items-center gap-3">
-        {/* Date & Weather Pill */}
-        <div className="hidden xl:flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-xs">
+      {/* Right: Date, Weather, Font Switcher, Role Switcher, Quick Action, User */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Date & Weather Pill (Wide screens only) */}
+        <div className="hidden 2xl:flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-xs">
           <div className="flex items-center gap-1.5 font-medium">
             <Calendar className="h-3.5 w-3.5 text-slate-400" />
             <span>{currentDateFormatted}</span>
@@ -121,32 +144,32 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
           </div>
         </div>
 
-        {/* Font Style Customizer */}
-        <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2.5 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
+        {/* Font Style Customizer (Hidden on small mobile) */}
+        <div className="hidden sm:flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2 py-1.5 text-xs shadow-xs hover:border-slate-300 transition-colors">
           <Type className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-          <span className="font-semibold text-slate-500 hidden sm:inline">Font:</span>
+          <span className="font-semibold text-slate-500 hidden md:inline">Font:</span>
           <select
             value={fontTheme}
             onChange={(e) => setFontTheme(e.target.value as FontTheme)}
-            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs"
+            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs max-w-[110px] md:max-w-none"
           >
-            <option value="outfit">Outfit (Modern SaaS)</option>
-            <option value="inter">Inter (Linear / Vercel)</option>
-            <option value="jakarta">Plus Jakarta Sans</option>
-            <option value="manrope">Manrope (Civil Architecture)</option>
-            <option value="space">Space Grotesk (Engineering)</option>
-            <option value="dmsans">DM Sans (Clean Corporate)</option>
+            <option value="outfit">Outfit (Modern)</option>
+            <option value="inter">Inter (Linear)</option>
+            <option value="jakarta">Plus Jakarta</option>
+            <option value="manrope">Manrope</option>
+            <option value="space">Space Grotesk</option>
+            <option value="dmsans">DM Sans</option>
           </select>
         </div>
 
         {/* Role-Based Access Control Switcher */}
-        <div className="flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/70 px-3 py-1.5 text-xs shadow-xs hover:bg-blue-50 transition-colors">
+        <div className="flex items-center gap-1.5 rounded-xl border border-blue-200/80 bg-blue-50/70 px-2 sm:px-3 py-1.5 text-xs shadow-xs hover:bg-blue-50 transition-colors">
           <ShieldCheck className="h-4 w-4 text-blue-600 shrink-0" />
-          <span className="font-bold text-blue-900 hidden sm:inline">Role View:</span>
+          <span className="font-bold text-blue-900 hidden lg:inline">Role:</span>
           <select
             value={activeRole}
             onChange={(e) => setActiveRole(e.target.value as UserRole)}
-            className="bg-transparent font-extrabold text-blue-700 focus:outline-none cursor-pointer"
+            className="bg-transparent font-extrabold text-blue-700 focus:outline-none cursor-pointer text-xs max-w-[95px] sm:max-w-none truncate"
           >
             {roles.map((r) => (
               <option key={r.role} value={r.role}>
@@ -156,13 +179,13 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenQuickAction }) => {
           </select>
         </div>
 
-        {/* Quick Action Button - Modern Gradient */}
+        {/* Quick Action Button - Icon on tiny screens, full on tablet+ */}
         <Button
           onClick={onOpenQuickAction}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs h-9 px-3.5 rounded-xl shadow-md shadow-amber-500/20 active:scale-95 transition-all"
+          className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl shadow-md shadow-amber-500/20 active:scale-95 transition-all"
         >
           <Plus className="h-4 w-4 stroke-[3]" />
-          <span>Quick Action</span>
+          <span className="hidden sm:inline">Quick Action</span>
         </Button>
 
         {/* Notifications Icon with Dropdown */}

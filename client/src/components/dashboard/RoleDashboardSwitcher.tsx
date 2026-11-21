@@ -123,20 +123,20 @@ export const RoleDashboardSwitcher: React.FC = () => {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Executive Header Banner - Ultra Premium Design */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0B1120] via-[#111C35] to-[#1E293B] p-6 text-white shadow-xl border border-slate-800/80">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0B1120] via-[#111C35] to-[#1E293B] p-4 sm:p-6 text-white shadow-xl border border-slate-800/80">
           <div className="absolute -right-10 -bottom-10 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
           <div className="absolute right-40 -top-10 h-48 w-48 rounded-full bg-amber-500/10 blur-2xl pointer-events-none" />
 
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <div className="space-y-2">
+          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5">
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-black text-amber-400 border border-amber-400/30">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-black text-amber-400 border border-amber-400/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
                   BUILDER & OWNER COMMAND
                 </span>
-                <span className="text-xs text-slate-400 font-medium">Apex Construction Enterprise HQ</span>
+                <span className="text-[11px] sm:text-xs text-slate-400 font-medium">Apex Construction Enterprise HQ</span>
               </div>
-              <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-snug sm:leading-tight">
                 Multi-Site Operational & Financial Command Center
               </h1>
               <p className="text-xs text-slate-300 max-w-2xl font-normal leading-relaxed">
@@ -144,9 +144,9 @@ export const RoleDashboardSwitcher: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <Link to="/approvals">
-                <Button className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
+            <div className="flex items-center gap-3 shrink-0 pt-1 sm:pt-0">
+              <Link to="/approvals" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs h-9 sm:h-10 px-4 rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
                   <span>Review Approvals</span>
                   <span className="ml-1.5 rounded-full bg-slate-950/20 px-2 py-0.5 text-[11px] font-extrabold text-slate-950">
                     {pendingApprovalsCount}
